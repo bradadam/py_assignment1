@@ -128,7 +128,7 @@ class CourseRegistrationApp(ctk.CTk):
         ).pack(anchor="w")
 
         # --- FIX 2: Updated Image Loading Logic ---
-        logo_path = "ASSIGNMENT_1/py_assignment1/utm_logo.png"
+        logo_path = "py_assignment1/utm_logo.png"
         if os.path.exists(logo_path):
             try:
                 # Open image using standard PIL
