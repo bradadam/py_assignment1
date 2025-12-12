@@ -155,13 +155,13 @@ class CourseRegistrationApp(ctk.CTk):
         self.card_info.grid(row=1, column=0, padx=30, pady=10, sticky="ew")
         self.card_info.grid_columnconfigure((1, 3), weight=1)
 
-        ctk.CTkLabel(self.card_info, text="👤 Student Name:").grid(
+        ctk.CTkLabel(self.card_info, text="Student Name:").grid(
             row=0, column=0, padx=(20, 10), pady=15
         )
         self.entry_name = ctk.CTkEntry(self.card_info, placeholder_text="Full Name")
         self.entry_name.grid(row=0, column=1, sticky="ew", padx=10)
 
-        ctk.CTkLabel(self.card_info, text="🆔 Matric No:").grid(
+        ctk.CTkLabel(self.card_info, text="Matric No:").grid(
             row=0, column=2, padx=10
         )
         self.entry_matric = ctk.CTkEntry(self.card_info, placeholder_text="A25AI...")
@@ -212,7 +212,7 @@ class CourseRegistrationApp(ctk.CTk):
 
         self.btn_save = ctk.CTkButton(
             self.card_action,
-            text="💾 Save Data",
+            text="Save Data",
             fg_color="#6c757d",
             hover_color="#5c636a",
             width=100,
@@ -336,6 +336,13 @@ class CourseRegistrationApp(ctk.CTk):
         if len(name) < 3:
             messagebox.showerror(
                 "Invalid Name", "Name too short! and please fill in your full name!"
+            )
+            self.entry_name.focus_set()  # puts cursor back to in matric id box
+            return
+
+        if any(char.isdigit() for char in name):
+            messagebox.showerror(
+                "Invalid Name", "Name cannot contain numbers. Please enter a valid name."
             )
             self.entry_name.focus_set()  # puts cursor back to in matric id box
             return
