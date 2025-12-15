@@ -1,0 +1,39 @@
+[
+    {
+        "name": "test",
+        "matric": "A12xx5678",
+        "registered_courses": [],
+        "total_credits": 0
+    },
+    {
+        "name": "123",
+        "matric": "123",
+        "registered_courses": [
+            {
+                "code": "SAIA1153",
+                "name": "MATHEMATICS FOR ML",
+                "credit": 3,
+                "slots": [
+                    [
+                        "Friday",
+                        "08:00-10:00"
+                    ]
+                ],
+                "location": "Lecture Room 2, Lvl 15"
+            },
+            {
+                "code": "SAIA1123",
+                "name": "INTRODUCTION TO AI",
+                "credit": 3,
+                "slots": [
+                    [
+                        "Tuesday",
+                        "08:00-10:00"
+                    ]
+                ],
+                "location": "Lecture Room 1, Lvl 15"
+            }
+        ],
+        "total_credits": 6
+    }
+]
