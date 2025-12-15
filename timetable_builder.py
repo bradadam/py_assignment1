@@ -1,56 +1,5 @@
-courses_available = [
-    {
-        "code": "SAIA1113",
-        "name": "PYTHON PROGRAMMING",
-        "credit": 3,
-        "slots": {"day": "Monday", "time": "08:00-10:00"},
-        "location": "Lecture Room 1, Lvl 15",
-    },
-    {
-        "code": "SAIA1143",
-        "name": "DISCRETE MATHEMATICS",
-        "credit": 3,
-        "slots": {"day": "Tuesday", "time": "08:00-10:00"},
-        "location": "Lecture Room 1, Lvl 15",
-    },
-    {
-        "code": "SAIA1013",
-        "name": "RESPONSIBLE AI AND ETHICS",
-        "credit": 3,
-        "slots": {"day": "Tuesday", "time": "14:00-16:00"},
-        "location": "Seminar Room 3, BATC",
-    },
-    {
-        "code": "SAIA1123",
-        "name": "INTRODUCTION TO AI",
-        "credit": 3,
-        "slots": {"day": "Wednesday", "time": "08:00-10:00"},
-        "location": "Lecture Room 1, Lvl 15",
-    },
-    {
-        "code": "ULRS1032",
-        "name": "INTEGRITY AND ANTI-CORRUPTION",
-        "credit": 2,
-        "slots": {"day": "Wednesday", "time": "10:00-12:00"},
-        "location": "Lecture Room 1, Lvl 15",
-    },
-    {
-        "code": "SAIA1133",
-        "name": "DATA MANAGEMENT",
-        "credit": 3,
-        "slots": {"day": "Wednesday", "time": "12:00-14:00"},
-        "location": "Lecture Room 1, Lvl 15",
-    },
-    {
-        "code": "SAIA1153",
-        "name": "MATHEMATICS FOR ML",
-        "credit": 3,
-        "slots": {"day": "Thursday", "time": "08:00-10:00"},
-        "location": "Lecture Room 2, Lvl 15",
-    },
-]
-
-student = {"name": "", "matric": "", "registered_courses": [], "total_credits": 0}
+from tabulate import * #for prettier tables
+import json
 
 # ==========================================
 #                  BRAD
@@ -88,23 +37,35 @@ def check_credit_limit(current_credits, new_credit):
 
 def register_student():
     print("\n--- NEW STUDENT REGISTRATION ---")
-    student["name"] = input("Enter Name: ")
-    student["matric"] = input("Enter Matric Number: ")
-    student["registered_courses"] = []
-    student["total_credits"] = 0
-    print(f"Student {student['name']} registered successfully!")
+    new_student={}
+    new_student["name"] = input("Enter Name: ")
+    new_student["matric"] = input("Enter Matric Number: ")
+    new_student["registered_courses"] = []
+    new_student["total_credits"] = 0
+    students.append(new_student)
+    print(f"Student {new_student['name']} registered successfully!")
 
-
-def add_course():
-    # add course with full validation
-    if not student["name"]:
+def find_student(matric):
+    for i in students:
+        if i["matric"] == matric:
+            return i
+    else:
         print("Please register student first (Option 1)!")
-        return
+        return 0
+
+def add_course(matric):
+    # add course with full validation
+
+    student = find_student(matric)
+    if not student: return
+
 
     # 1. display list
     print("\nAvailable Courses (Year 1, Sem 1):")
-    for c in courses_available:
-        print(f"{c['code']} - {c['name']} ({c['slots']['day']} {c['slots']['time']})")
+    print(tabulate(courses_available, headers="keys", tablefmt="fancy_grid")) #pretty table
+
+    #for c in courses_available:
+    #    print(f"{c['code']} - {c['name']} ({c['slots']['day']} {c['slots']['time']})")
 
     code = input("\nEnter course code to add: ").strip().upper()
 
@@ -130,7 +91,7 @@ def add_course():
 
     # 5. validation: clashes
     # INTEGRATION POINT: This will call the function detect_clash() below
-    if detect_clash(course):
+    if detect_clash(course,student):
         print(f"TIMETABLE CLASH DETECTED! Cannot add {course['code']}.")
         return
 
@@ -141,7 +102,10 @@ def add_course():
     print(f"Total credits: {student['total_credits']}/21")
 
 
-def drop_course():
+def drop_course(matric):
+    student = find_student(matric) #find the student 
+    if not student: return
+
     # remove registered course
     if not student["registered_courses"]:
         print("No courses registered yet!")
@@ -149,7 +113,6 @@ def drop_course():
 
     code = input("\nEnter course code to drop: ").strip().upper()
 
-    found = False
     # range(len(...)) creates a list of indices: [0, 1, 2, etc.]
     for i in range(len(student["registered_courses"])):
         # access the course manually using the index 'i'
@@ -160,40 +123,119 @@ def drop_course():
             student["total_credits"] -= removed["credit"]
             print(f"Course {code} dropped successfully!")
             print(f"Total credits now: {student['total_credits']}/21")
-            found = True
             break
-
-    if not found:
+    else:
         print("Course not found in your registration!")
 
 
-def view_registered_courses():
+def view_registered_courses(matric):
+    student = find_student(matric) #find the student 
+    if not student: return
+
     if not student["registered_courses"]:
         print("\nNo courses registered.")
     else:
         print(f"\nRegistered Courses for {student['name']}:")
-        for c in student["registered_courses"]:
-            print(f"- {c['code']}: {c['name']} ({c['credit']} credits)")
+        print(tabulate(student["registered_courses"],headers="keys",tablefmt="fancy_grid"))
+        #for c in student["registered_courses"]:
+        #    print(f"- {c['code']}: {c['name']} ({c['credit']} credits)")
         print(f"Total Credits: {student['total_credits']}")
 
 
-def detect_clash(new_course):
+def detect_clash(new_course,student):
     """
     check if new_course time slot overlap with any registered course
     return True if a clash exists.
     """
-    new_day = new_course["slots"]["day"]
-    new_time = new_course["slots"]["time"]
+    for slot in new_course["slots"]:
+        new_day, new_time = slot
 
-    for registered in student["registered_courses"]:
-        reg_day = registered["slots"]["day"]
-        reg_time = registered["slots"]["time"]
-
-        # if day matches AND time matches
-        if new_day == reg_day and new_time == reg_time:
-            print(
-                f"CLASH ALERT: New course conflicts with {registered['code']} ({registered['name']})"
-            )
-            return True
+        for registered in student["registered_courses"]:
+            reg_slots = registered["slots"]
+            for reg_slot in reg_slots:
+                reg_day, reg_time = reg_slot
+                # if day matches AND time matches
+                if new_day == reg_day and new_time == reg_time:
+                    print(
+                        f"CLASH ALERT: New course conflicts with {registered['code']} ({registered['name']})"
+                    )
+                    return True
 
     return False
+
+def generate_timetable(matric):
+    student = find_student(matric)
+    if not student: return
+    registered_courses = student["registered_courses"]
+    courses={course["code"]: course["slots"] for course in registered_courses}
+
+
+    timetable=[{"day":'',"08:00":'',"09:00":'',"10:00":'',"11:00":'',"12:00":'',"13:00":'',"14:00":'',"15:00":'',"16:00":''} for _ in range(5)]
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    for i in range(5):
+        timetable[i]['day'] = days[i]
+        for j in range(8,17):
+            timetable[i][f"{j:02d}:00"] = "  ---  "
+
+    for code,slots in courses.items():
+        for slot in slots:
+            day, time = slot  # Assuming one slot per course for simplicity
+            start_time, end_time = time.split('-')
+            start_hour = int(start_time.split(':')[0])
+            end_hour = int(end_time.split(':')[0])
+            day_index = days.index(day)
+            for hour in range(start_hour, end_hour):
+                timetable[day_index][f"{hour:02d}:00"] = code
+    display_timetable(timetable,student['name'])
+    
+def display_timetable(timetable,student_name):
+    print(f"\nTimetable for {student_name}:")
+    print(tabulate(timetable, headers="keys", tablefmt="fancy_grid"))
+
+def save_and_exit():
+    with open("students.json",'w') as sf:
+        json.dump(students,sf,indent=4)
+    with open("courses.json",'w') as cf:
+        json.dump(courses_available,cf,indent=4)
+
+def load_data():
+    global students, courses_available
+    try:
+        with open("students.json", "r") as f:
+            students = json.load(f)
+    except FileNotFoundError:
+        print("No existing student data found. Starting fresh.")
+        students = []
+
+    with open("courses.json", "r") as f:
+        courses_available = json.load(f)
+
+    
+def main():
+    load_data()
+    while True:
+        display_menu()
+        choice = input("Select an option (1-6): ").strip()
+
+        if choice == "1":
+            register_student()
+        elif choice == "2":
+            matric = input("Enter your Matric Number: ").strip().upper()
+            add_course(matric)
+        elif choice == "3":
+            matric = input("Enter your Matric Number: ").strip().upper()
+            drop_course(matric)
+        elif choice == "4":
+            matric = input("Enter your Matric Number: ").strip().upper()
+            view_registered_courses(matric)
+        elif choice == "5":
+            matric = input("Enter your Matric Number: ").strip().upper()
+            generate_timetable(matric)
+        elif choice == "6":
+            save_and_exit()
+            break
+        else:
+            print("Invalid option. Please try again.")
+
+if __name__ == "__main__":
+    main()
