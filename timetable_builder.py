@@ -1,4 +1,4 @@
-from tabulate import * #for prettier tables
+from tabulate import *  # for prettier tables
 import json
 
 # ==========================================
@@ -37,13 +37,14 @@ def check_credit_limit(current_credits, new_credit):
 
 def register_student():
     print("\n--- NEW STUDENT REGISTRATION ---")
-    new_student={}
+    new_student = {}
     new_student["name"] = input("Enter Name: ")
     new_student["matric"] = input("Enter Matric Number: ")
     new_student["registered_courses"] = []
     new_student["total_credits"] = 0
     students.append(new_student)
     print(f"Student {new_student['name']} registered successfully!")
+
 
 def find_student(matric):
     for i in students:
@@ -53,18 +54,21 @@ def find_student(matric):
         print("Please register student first (Option 1)!")
         return 0
 
+
 def add_course(matric):
     # add course with full validation
 
     student = find_student(matric)
-    if not student: return
-
+    if not student:
+        return
 
     # 1. display list
     print("\nAvailable Courses (Year 1, Sem 1):")
-    print(tabulate(courses_available, headers="keys", tablefmt="fancy_grid")) #pretty table
+    print(
+        tabulate(courses_available, headers="keys", tablefmt="fancy_grid")
+    )  # pretty table
 
-    #for c in courses_available:
+    # for c in courses_available:
     #    print(f"{c['code']} - {c['name']} ({c['slots']['day']} {c['slots']['time']})")
 
     code = input("\nEnter course code to add: ").strip().upper()
@@ -91,7 +95,7 @@ def add_course(matric):
 
     # 5. validation: clashes
     # INTEGRATION POINT: This will call the function detect_clash() below
-    if detect_clash(course,student):
+    if detect_clash(course, student):
         print(f"TIMETABLE CLASH DETECTED! Cannot add {course['code']}.")
         return
 
@@ -103,8 +107,9 @@ def add_course(matric):
 
 
 def drop_course(matric):
-    student = find_student(matric) #find the student 
-    if not student: return
+    student = find_student(matric)  # find the student
+    if not student:
+        return
 
     # remove registered course
     if not student["registered_courses"]:
@@ -129,20 +134,25 @@ def drop_course(matric):
 
 
 def view_registered_courses(matric):
-    student = find_student(matric) #find the student 
-    if not student: return
+    student = find_student(matric)  # find the student
+    if not student:
+        return
 
     if not student["registered_courses"]:
         print("\nNo courses registered.")
     else:
         print(f"\nRegistered Courses for {student['name']}:")
-        print(tabulate(student["registered_courses"],headers="keys",tablefmt="fancy_grid"))
-        #for c in student["registered_courses"]:
+        print(
+            tabulate(
+                student["registered_courses"], headers="keys", tablefmt="fancy_grid"
+            )
+        )
+        # for c in student["registered_courses"]:
         #    print(f"- {c['code']}: {c['name']} ({c['credit']} credits)")
         print(f"Total Credits: {student['total_credits']}")
 
 
-def detect_clash(new_course,student):
+def detect_clash(new_course, student):
     """
     check if new_course time slot overlap with any registered course
     return True if a clash exists.
@@ -163,40 +173,58 @@ def detect_clash(new_course,student):
 
     return False
 
+
 def generate_timetable(matric):
     student = find_student(matric)
-    if not student: return
+    if not student:
+        return
     registered_courses = student["registered_courses"]
-    courses={course["code"]: course["slots"] for course in registered_courses}
+    courses = {course["code"]: course["slots"] for course in registered_courses}
 
-
-    timetable=[{"day":'',"08:00":'',"09:00":'',"10:00":'',"11:00":'',"12:00":'',"13:00":'',"14:00":'',"15:00":'',"16:00":''} for _ in range(5)]
+    timetable = [
+        {
+            "day": "",
+            "08:00": "",
+            "09:00": "",
+            "10:00": "",
+            "11:00": "",
+            "12:00": "",
+            "13:00": "",
+            "14:00": "",
+            "15:00": "",
+            "16:00": "",
+        }
+        for _ in range(5)
+    ]
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
     for i in range(5):
-        timetable[i]['day'] = days[i]
-        for j in range(8,17):
+        timetable[i]["day"] = days[i]
+        for j in range(8, 17):
             timetable[i][f"{j:02d}:00"] = "  ---  "
 
-    for code,slots in courses.items():
+    for code, slots in courses.items():
         for slot in slots:
             day, time = slot  # Assuming one slot per course for simplicity
-            start_time, end_time = time.split('-')
-            start_hour = int(start_time.split(':')[0])
-            end_hour = int(end_time.split(':')[0])
+            start_time, end_time = time.split("-")
+            start_hour = int(start_time.split(":")[0])
+            end_hour = int(end_time.split(":")[0])
             day_index = days.index(day)
             for hour in range(start_hour, end_hour):
                 timetable[day_index][f"{hour:02d}:00"] = code
-    display_timetable(timetable,student['name'])
-    
-def display_timetable(timetable,student_name):
+    display_timetable(timetable, student["name"])
+
+
+def display_timetable(timetable, student_name):
     print(f"\nTimetable for {student_name}:")
     print(tabulate(timetable, headers="keys", tablefmt="fancy_grid"))
 
+
 def save_and_exit():
-    with open("students.json",'w') as sf:
-        json.dump(students,sf,indent=4)
-    with open("courses.json",'w') as cf:
-        json.dump(courses_available,cf,indent=4)
+    with open("students.json", "w") as sf:
+        json.dump(students, sf, indent=4)
+    with open("courses.json", "w") as cf:
+        json.dump(courses_available, cf, indent=4)
+
 
 def load_data():
     global students, courses_available
@@ -210,7 +238,7 @@ def load_data():
     with open("courses.json", "r") as f:
         courses_available = json.load(f)
 
-    
+
 def main():
     load_data()
     while True:
@@ -236,6 +264,7 @@ def main():
             break
         else:
             print("Invalid option. Please try again.")
+
 
 if __name__ == "__main__":
     main()
