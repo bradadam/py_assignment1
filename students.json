@@ -35,5 +35,24 @@
             }
         ],
         "total_credits": 6
+    },
+    {
+        "name": "IDRIS",
+        "matric": "A25AI9999",
+        "registered_courses": [
+            {
+                "code": "SAIA1013",
+                "name": "RESPONSIBLE AI AND ETHICS",
+                "credit": 3,
+                "slots": [
+                    [
+                        "Wednesday",
+                        "14:00-16:00"
+                    ]
+                ],
+                "location": "Seminar Room 3, BATC"
+            }
+        ],
+        "total_credits": 3
     }
 ]
