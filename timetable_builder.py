@@ -1,5 +1,6 @@
 from tabulate import *  # for prettier tables
 import json
+import customtkinter as ctk
 
 # ==========================================
 #                  BRAD
@@ -44,6 +45,12 @@ def register_student():
     new_student["total_credits"] = 0
     students.append(new_student)
     print(f"Student {new_student['name']} registered successfully!")
+
+    while find_student(new_student["matric"])["total_credits"] < 12:
+        print(
+            f"Please add courses to reach minimum 12 credits. Current: {new_student['total_credits']} credits."
+        )
+        add_course(new_student["matric"])
 
 
 def find_student(matric):
@@ -124,6 +131,9 @@ def drop_course(matric):
         c = student["registered_courses"][i]
 
         if c["code"] == code:
+            if student["total_credits"] - c["credit"] < 12:
+                print("Cannot drop! Minimum 12 credits required.")
+                return
             removed = student["registered_courses"].pop(i)
             student["total_credits"] -= removed["credit"]
             print(f"Course {code} dropped successfully!")
@@ -239,8 +249,32 @@ def load_data():
         courses_available = json.load(f)
 
 
+class App(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.geometry("400x300")
+        self.title("Student Course Registration")
+        label = ctk.CTkLabel(self, text="Welcome to Student Course Registration")
+        label.pack(pady=20)
+
+    def register_matric(self):
+        entry = ctk.CTkEntry(self, placeholder_text="Enter Matric Number")
+        entry.pack(pady=10)
+        matric = entry.get()
+        button = ctk.CTkButton(
+            self, text="Submit", command=lambda: print(f"Matric Number: {entry.get()}")
+        )
+        button.pack(pady=10)
+        return matric
+
+    def run(self):
+        self.register_matric()
+        self.mainloop()
+
+
 def main():
     load_data()
+
     while True:
         display_menu()
         choice = input("Select an option (1-6): ").strip()

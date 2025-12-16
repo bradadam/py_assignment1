@@ -5,7 +5,7 @@
     "credit": 3,
     "slots": [
       ["Monday", "08:00-10:00"],
-      ["Tuesday", "08:00-10:00"]
+      ["Friday", "08:00-09:00"]
     ],
     "location": "Lecture Room 1, Lvl 15"
   },
@@ -13,7 +13,10 @@
     "code": "SAIA1143",
     "name": "DISCRETE MATHEMATICS",
     "credit": 3,
-    "slots": [["Tuesday", "10:00-12:00"]],
+    "slots": [
+      ["Tuesday", "08:00-10:00"],
+      ["Friday", "10:00-11:00"]
+    ],
     "location": "Lecture Room 1, Lvl 15"
   },
   {
@@ -27,14 +30,17 @@
     "code": "SAIA1123",
     "name": "INTRODUCTION TO AI",
     "credit": 3,
-    "slots": [["Tuesday", "08:00-10:00"]],
+    "slots": [
+      ["Wednesday", "08:00-10:00"],
+      ["Thursday", "10:00-11:00"]
+    ],
     "location": "Lecture Room 1, Lvl 15"
   },
   {
     "code": "ULRS1032",
     "name": "INTEGRITY AND ANTI-CORRUPTION",
     "credit": 2,
-    "slots": [["Wednesday", "10:00-12:00"]],
+    "slots": [["Tuesday", "11:00-13:00"]],
     "location": "Lecture Room 1, Lvl 15"
   },
   {
@@ -48,7 +54,10 @@
     "code": "SAIA1153",
     "name": "MATHEMATICS FOR ML",
     "credit": 3,
-    "slots": [["Friday", "08:00-10:00"]],
+    "slots": [
+      ["Monday", "12:00-13:00"],
+      ["Thursday", "14:00-16:00"]
+    ],
     "location": "Lecture Room 2, Lvl 15"
   }
 ]
