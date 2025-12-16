@@ -11,6 +11,7 @@ import customtkinter as ctk
 # 3. remove_course() (mapped to drop_course)
 # 4. check_credit_limit()
 
+#test - just for testing
 
 def display_menu():
     # display main menu – called every loop
