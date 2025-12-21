@@ -10,17 +10,16 @@ ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("dark-blue")
 APP_NAME = "UTM AI: Student Scheduler"
 MAX_CREDITS = 21
-
-# Color palette for different courses in timetable
+MIN_CREDITS = 12
 COURSE_COLORS = [
-    "#2980b9",  # Blue
-    "#27ae60",  # Green
-    "#8e44ad",  # Purple
-    "#c0392b",  # Red
-    "#d35400",  # Orange
-    "#16a085",  # Teal
-    "#2c3e50",  # Dark Blue
-    "#f39c12",  # Yellow-Orange
+    "#2980b9",
+    "#27ae60",
+    "#8e44ad",
+    "#c0392b",
+    "#d35400",
+    "#16a085",
+    "#2c3e50",
+    "#f39c12",
 ]
 
 
@@ -102,21 +101,17 @@ class GROUP2App(ctk.CTk):
         super().__init__()
         self.title(APP_NAME)
         self.geometry("1280x800")
-        self.minsize(1000, 700)
-
         self.students = []
         self.courses_available = []
         self.current_student = None
         self.notification_label = None
-        self.timetable_container = None  # To refresh timetable
-
+        self.timetable_container = None
+        self.min_credit_warning = None  # Will be created in dashboard
         create_initial_data()
         self.load_data()
         self.logo_image = self.get_logo_image()
-
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
-
         self.show_login_screen()
 
     def get_logo_image(self):
@@ -124,31 +119,24 @@ class GROUP2App(ctk.CTk):
             img = Image.open("utm_logo.png")
             return ctk.CTkImage(light_image=img, dark_image=img, size=(180, 60))
         except Exception:
-            print("Warning: 'utm_logo.png' not found. Using placeholder.")
             img = Image.new("RGB", (180, 60), color=(128, 0, 0))
             d = ImageDraw.Draw(img)
-            d.text((40, 15), "UTM AI", fill="white", font_size=30)
+            d.text((40, 15), "UTM AI", fill="white")
             return ctk.CTkImage(light_image=img, dark_image=img, size=(180, 60))
 
     def load_data(self):
         try:
             with open("students.json", "r") as f:
                 self.students = json.load(f)
-        except:
-            self.students = []
-        try:
             with open("courses.json", "r") as f:
                 self.courses_available = json.load(f)
         except:
-            self.courses_available = []
+            self.students, self.courses_available = [], []
 
     def save_data(self):
         with open("students.json", "w") as f:
             json.dump(self.students, f, indent=4)
 
-    # ==========================================
-    # NOTIFICATIONS
-    # ==========================================
     def show_toast(self, message, is_error=False):
         if self.notification_label:
             self.notification_label.destroy()
@@ -183,54 +171,39 @@ class GROUP2App(ctk.CTk):
         self.clear_screen()
         frame = ctk.CTkFrame(self, corner_radius=15)
         frame.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.35, relheight=0.65)
-
         ctk.CTkLabel(frame, text="", image=self.logo_image).pack(pady=(40, 20))
-        ctk.CTkLabel(
-            frame, text="COURSE REGISTRATION", font=("Roboto", 24, "bold")
-        ).pack(pady=(0, 20))
-
         tabview = ctk.CTkTabview(frame, width=380, height=300)
         tabview.pack(pady=10)
-
         tabview.add("Login")
         tabview.add("Register")
 
-        # Login
+        # Login UI
         self.entry_login_matric = ctk.CTkEntry(
-            tabview.tab("Login"), placeholder_text="Matric Number", font=("Roboto", 14)
+            tabview.tab("Login"), placeholder_text="Matric Number"
         )
         self.entry_login_matric.pack(pady=30, padx=40, fill="x")
         ctk.CTkButton(
-            tabview.tab("Login"),
-            text="Access Dashboard",
-            height=40,
-            command=self.handle_login,
+            tabview.tab("Login"), text="Access Dashboard", command=self.handle_login
         ).pack(pady=10, padx=40, fill="x")
 
-        # Register
+        # Register UI
         self.entry_reg_name = ctk.CTkEntry(
-            tabview.tab("Register"), placeholder_text="Full Name", font=("Roboto", 14)
+            tabview.tab("Register"), placeholder_text="Full Name"
         )
         self.entry_reg_name.pack(pady=(30, 10), padx=40, fill="x")
         self.entry_reg_matric = ctk.CTkEntry(
-            tabview.tab("Register"),
-            placeholder_text="Matric Number",
-            font=("Roboto", 14),
+            tabview.tab("Register"), placeholder_text="Matric Number"
         )
         self.entry_reg_matric.pack(pady=10, padx=40, fill="x")
         ctk.CTkButton(
             tabview.tab("Register"),
             text="Create Account",
             fg_color="#27ae60",
-            hover_color="#2ecc71",
-            height=40,
             command=self.handle_register,
         ).pack(pady=15, padx=40, fill="x")
 
     def show_dashboard(self):
         self.clear_screen()
-
-        # Sidebar
         sidebar = ctk.CTkFrame(self, width=260, corner_radius=0)
         sidebar.grid(row=0, column=0, sticky="nsew")
         sidebar.grid_propagate(False)
@@ -241,12 +214,6 @@ class GROUP2App(ctk.CTk):
             text=f"Welcome,\n{self.current_student['name'].split()[0]}",
             font=("Roboto", 22, "bold"),
         ).pack(pady=10)
-        ctk.CTkLabel(
-            sidebar,
-            text=self.current_student["matric"],
-            text_color="#aaaaaa",
-            font=("Roboto", 14),
-        ).pack()
 
         self.credit_label = ctk.CTkLabel(
             sidebar,
@@ -254,23 +221,30 @@ class GROUP2App(ctk.CTk):
             font=("Roboto", 18, "bold"),
             text_color="#3498db",
         )
-        self.credit_label.pack(pady=50)
+        self.credit_label.pack(pady=20)
+
+        # Dynamic minimum credit warning
+        self.min_credit_warning = ctk.CTkLabel(
+            sidebar,
+            text="MINIMUM 12 CREDITS REQUIRED.",
+            text_color="#e67e22",
+            font=("Roboto", 12, "bold"),
+        )
+        if self.current_student["total_credits"] < MIN_CREDITS:
+            self.min_credit_warning.pack(pady=(0, 20))
+        else:
+            self.min_credit_warning.pack_forget()
 
         ctk.CTkButton(
             sidebar,
             text="Log Out",
             fg_color="transparent",
             border_width=2,
-            text_color="#95a5a6",
-            hover_color="#2c3e50",
             command=self.logout,
-            height=40,
         ).pack(side="bottom", pady=40, padx=40, fill="x")
 
-        # Main Content
         main_view = ctk.CTkTabview(self)
         main_view.grid(row=0, column=1, padx=20, pady=20, sticky="nsew")
-
         main_view.add("Course Selection")
         main_view.add("My Timetable")
 
@@ -282,24 +256,25 @@ class GROUP2App(ctk.CTk):
     # ==========================================
     def handle_login(self):
         matric = self.entry_login_matric.get().strip().upper()
-        for student in self.students:
-            if student["matric"] == matric:
-                self.current_student = student
-                self.show_dashboard()
-                self.show_toast(f"Welcome back, {student['name'].split()[0]}!")
-                return
-        self.show_toast("Student not found. Please register.", is_error=True)
+        student = next((s for s in self.students if s["matric"] == matric), None)
+        if student:
+            self.current_student = student
+            self.show_dashboard()
+            self.show_toast(f"Welcome back, {student['name'].split()[0]}!")
+        else:
+            self.show_toast("Student not found. Please register.", is_error=True)
 
     def handle_register(self):
-        name = self.entry_reg_name.get().strip().title()
-        matric = self.entry_reg_matric.get().strip().upper()
+        name, matric = (
+            self.entry_reg_name.get().strip().title(),
+            self.entry_reg_matric.get().strip().upper(),
+        )
         if not name or not matric:
-            self.show_toast("Please fill all fields.", is_error=True)
+            self.show_toast("Fill all fields.", is_error=True)
             return
         if any(s["matric"] == matric for s in self.students):
-            self.show_toast("Matric number already exists.", is_error=True)
+            self.show_toast("Matric exists.", is_error=True)
             return
-
         new_student = {
             "name": name,
             "matric": matric,
@@ -308,63 +283,75 @@ class GROUP2App(ctk.CTk):
         }
         self.students.append(new_student)
         self.save_data()
-        self.show_toast("Registration successful! You can now login.")
-        self.entry_reg_name.delete(0, "end")
-        self.entry_reg_matric.delete(0, "end")
+        self.current_student = new_student
+        self.show_dashboard()  # Directly go to dashboard after registration
+        self.show_toast(
+            "Account created! Please register at least 12 credits.", is_error=False
+        )
 
     def logout(self):
+        if self.current_student["total_credits"] < MIN_CREDITS:
+            self.show_toast(
+                f"Cannot log out! You need at least {MIN_CREDITS} credits.",
+                is_error=True,
+            )
+            return
         self.current_student = None
         self.save_data()
         self.show_login_screen()
 
-    def check_clash(self, new_course):
+    def detect_clash(self, new_course):
+        """Proper overlap detection: two slots clash if max(start) < min(end)"""
         for n_slot in new_course["slots"]:
             n_day, n_time = n_slot
-            n_start = int(n_time.split("-")[0].split(":")[0])
-            n_end = int(n_time.split("-")[1].split(":")[0])
+            n_start_str, n_end_str = n_time.split("-")
+            n_start = int(n_start_str.split(":")[0])
+            n_end = int(n_end_str.split(":")[0])
 
             for reg_course in self.current_student["registered_courses"]:
                 for r_slot in reg_course["slots"]:
                     r_day, r_time = r_slot
                     if n_day != r_day:
                         continue
-                    r_start = int(r_time.split("-")[0].split(":")[0])
-                    r_end = int(r_time.split("-")[1].split(":")[0])
+                    r_start_str, r_end_str = r_time.split("-")
+                    r_start = int(r_start_str.split(":")[0])
+                    r_end = int(r_end_str.split(":")[0])
+
+                    # Overlap condition
                     if max(n_start, r_start) < min(n_end, r_end):
-                        return f"Clash with {reg_course['code']} on {n_day} {n_time}"
+                        return f"CLASH: {reg_course['code']} ({n_day} {r_time})"
         return None
 
     def add_course_action(self, course):
-        if any(
-            c["code"] == course["code"]
-            for c in self.current_student["registered_courses"]
-        ):
-            self.show_toast("Already registered for this course.", is_error=True)
-            return
         if self.current_student["total_credits"] + course["credit"] > MAX_CREDITS:
             self.show_toast(f"Exceeds {MAX_CREDITS} credit limit.", is_error=True)
             return
-        clash = self.check_clash(course)
+        clash = self.detect_clash(course)
         if clash:
             self.show_toast(clash, is_error=True)
             return
-
         self.current_student["registered_courses"].append(course)
         self.current_student["total_credits"] += course["credit"]
         self.save_data()
         self.refresh_ui()
-        self.show_toast(f"Added {course['code']} successfully!")
+        self.show_toast(f"Added {course['code']}", is_error=False)
 
     def drop_course_action(self, course):
+        new_credits = self.current_student["total_credits"] - course["credit"]
+        if new_credits < MIN_CREDITS:
+            self.show_toast(
+                f"Cannot drop! Would fall below {MIN_CREDITS} credits.", is_error=True
+            )
+            return
         self.current_student["registered_courses"] = [
             c
             for c in self.current_student["registered_courses"]
             if c["code"] != course["code"]
         ]
-        self.current_student["total_credits"] -= course["credit"]
+        self.current_student["total_credits"] = new_credits
         self.save_data()
         self.refresh_ui()
-        self.show_toast(f"Dropped {course['code']}.")
+        self.show_toast(f"Dropped {course['code']}", is_error=False)
 
     def refresh_ui(self):
         if not self.current_student:
@@ -372,47 +359,47 @@ class GROUP2App(ctk.CTk):
         self.credit_label.configure(
             text=f"Credits: {self.current_student['total_credits']}/{MAX_CREDITS}"
         )
+        # Update min credit warning visibility
+        if self.current_student["total_credits"] < MIN_CREDITS:
+            if self.min_credit_warning and self.min_credit_warning.winfo_exists():
+                self.min_credit_warning.pack(pady=(0, 20))
+        else:
+            if self.min_credit_warning and self.min_credit_warning.winfo_exists():
+                self.min_credit_warning.pack_forget()
+
         self.populate_course_lists()
-        # Refresh timetable
         if self.timetable_container:
-            for widget in self.timetable_container.winfo_children():
-                widget.destroy()
+            for w in self.timetable_container.winfo_children():
+                w.destroy()
             self.draw_timetable_grid(self.timetable_container)
 
     # ==========================================
-    # COURSE SELECTION TAB
+    # UI GENERATION
     # ==========================================
     def setup_course_tab(self, parent):
         parent.grid_columnconfigure((0, 1), weight=1)
         parent.grid_rowconfigure(0, weight=1)
 
-        # Left: Available
         left = ctk.CTkFrame(parent)
         left.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
         ctk.CTkLabel(left, text="Available Courses", font=("Roboto", 18, "bold")).pack(
-            pady=(10, 5), anchor="w", padx=20
+            pady=10, padx=20, anchor="w"
         )
-
         self.search_var = ctk.StringVar()
         self.search_var.trace("w", lambda *args: self.populate_course_lists())
         ctk.CTkEntry(
-            left,
-            placeholder_text="Search by code or name...",
-            textvariable=self.search_var,
-            height=35,
-        ).pack(fill="x", padx=20, pady=(0, 10))
-
+            left, placeholder_text="Search...", textvariable=self.search_var
+        ).pack(fill="x", padx=20, pady=5)
         self.scroll_avail = ctk.CTkScrollableFrame(left)
-        self.scroll_avail.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        self.scroll_avail.pack(fill="both", expand=True, padx=20, pady=10)
 
-        # Right: Registered
         right = ctk.CTkFrame(parent)
         right.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
-        ctk.CTkLabel(
-            right, text="My Registered Courses", font=("Roboto", 18, "bold")
-        ).pack(pady=(10, 5), anchor="w", padx=20)
+        ctk.CTkLabel(right, text="My Registration", font=("Roboto", 18, "bold")).pack(
+            pady=10, padx=20, anchor="w"
+        )
         self.scroll_reg = ctk.CTkScrollableFrame(right)
-        self.scroll_reg.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        self.scroll_reg.pack(fill="both", expand=True, padx=20, pady=10)
 
         self.populate_course_lists()
 
@@ -420,131 +407,88 @@ class GROUP2App(ctk.CTk):
         search = self.search_var.get().lower()
         for w in self.scroll_avail.winfo_children() + self.scroll_reg.winfo_children():
             w.destroy()
-
-        registered_codes = {
-            c["code"] for c in self.current_student["registered_courses"]
-        }
-
-        for course in self.courses_available:
-            if course["code"] in registered_codes:
-                continue
-            if (
-                search
-                and search not in course["code"].lower()
-                and search not in course["name"].lower()
+        reg_codes = {c["code"] for c in self.current_student["registered_courses"]}
+        for c in self.courses_available:
+            if c["code"] not in reg_codes and (
+                not search or search in c["code"].lower() or search in c["name"].lower()
             ):
-                continue
-            self.create_course_card(self.scroll_avail, course, False)
-
-        for course in self.current_student["registered_courses"]:
-            self.create_course_card(self.scroll_reg, course, True)
+                self.create_course_card(self.scroll_avail, c, False)
+        for c in self.current_student["registered_courses"]:
+            self.create_course_card(self.scroll_reg, c, True)
 
     def create_course_card(self, parent, course, is_registered):
         card = ctk.CTkFrame(parent, corner_radius=10, fg_color="#2f2f2f")
-        card.pack(fill="x", pady=6, padx=10)
-
+        card.pack(fill="x", pady=5, padx=5)
         info = ctk.CTkFrame(card, fg_color="transparent")
-        info.pack(side="left", padx=15, pady=12, fill="both", expand=True)
-
-        ctk.CTkLabel(
-            info, text=course["code"], font=("Roboto", 15, "bold"), anchor="w"
-        ).pack(anchor="w")
-        ctk.CTkLabel(info, text=course["name"], font=("Roboto", 13), anchor="w").pack(
+        info.pack(side="left", padx=10, pady=10, fill="both", expand=True)
+        ctk.CTkLabel(info, text=course["code"], font=("Roboto", 14, "bold")).pack(
             anchor="w"
         )
-        slots = ", ".join(f"{d[:3]} {t}" for d, t in course["slots"])
         ctk.CTkLabel(
-            info,
-            text=f"{course['credit']} credits • {slots}",
-            text_color="#bbbbbb",
-            anchor="w",
-        ).pack(anchor="w", pady=(5, 0))
-
-        btn_text = "Drop" if is_registered else "Add"
-        btn_color = "#c0392b" if is_registered else "#2980b9"
-        ctk.CTkButton(
+            info, text=f"{course['name']} ({course['credit']} Cr)", font=("Roboto", 12)
+        ).pack(anchor="w")
+        btn = ctk.CTkButton(
             card,
-            text=btn_text,
-            width=80,
-            fg_color=btn_color,
-            hover_color=("#a93226" if is_registered else "#2471a3"),
+            text="Drop" if is_registered else "Add",
+            width=60,
+            fg_color="#c0392b" if is_registered else "#2980b9",
             command=lambda c=course: (
                 self.drop_course_action(c)
                 if is_registered
                 else self.add_course_action(c)
             ),
-        ).pack(side="right", padx=15, pady=15)
+        )
+        btn.pack(side="right", padx=10)
 
-    # ==========================================
-    # TIMETABLE TAB
-    # ==========================================
     def setup_timetable_tab(self, parent):
         self.timetable_container = ctk.CTkScrollableFrame(parent)
-        self.timetable_container.pack(fill="both", expand=True, padx=20, pady=20)
+        self.timetable_container.pack(fill="both", expand=True, padx=10, pady=10)
         self.draw_timetable_grid(self.timetable_container)
 
     def draw_timetable_grid(self, container):
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-        hours = list(range(8, 18))  # 08:00 to 17:00
+        hours = list(range(8, 18))
 
-        # Configure grid
-        container.grid_columnconfigure(0, minsize=100)
-        for i in range(len(hours)):
-            container.grid_columnconfigure(i + 1, weight=1, minsize=120)
-
-        # Time headers
-        for col, h in enumerate(hours):
+        # Header row (hours)
+        for i, h in enumerate(hours):
             ctk.CTkLabel(
-                container, text=f"{h:02d}:00", font=("Roboto", 12, "bold")
-            ).grid(row=0, column=col + 1, pady=10)
+                container, text=f"{h:02d}:00", font=("Roboto", 11, "bold")
+            ).grid(row=0, column=i + 1, padx=5)
 
-        # Day labels + empty cells
+        # Day labels and empty cells
         for r, day in enumerate(days, start=1):
-            ctk.CTkLabel(
-                container, text=day, font=("Roboto", 14, "bold"), width=12
-            ).grid(row=r, column=0, padx=10, pady=25)
+            ctk.CTkLabel(container, text=day, font=("Roboto", 12, "bold")).grid(
+                row=r, column=0, padx=10, pady=20
+            )
             for c in range(len(hours)):
-                cell = ctk.CTkFrame(
-                    container, fg_color="#1e1e1e", corner_radius=6, height=70
+                ctk.CTkFrame(container, fg_color="#1e1e1e", width=100, height=60).grid(
+                    row=r, column=c + 1, padx=1, pady=1
                 )
-                cell.grid(row=r, column=c + 1, padx=2, pady=2, sticky="nsew")
-                cell.grid_propagate(False)
 
-        # Place course blocks with unique colors
+        # Draw registered courses
         for idx, course in enumerate(self.current_student["registered_courses"]):
             color = COURSE_COLORS[idx % len(COURSE_COLORS)]
             for slot in course["slots"]:
-                day_name, time_range = slot
-                if day_name not in days:
+                day, time_range = slot
+                if day not in days:
                     continue
-                day_row = days.index(day_name) + 1
-                start_str, end_str = time_range.split("-")
-                start_h = int(start_str.split(":")[0])
-                end_h = int(end_str.split(":")[0])
-                duration = end_h - start_h
-                col_start = (start_h - 8) + 1
+                start_h = int(time_range.split("-")[0].split(":")[0])
+                end_h = int(time_range.split("-")[1].split(":")[0])
 
-                if start_h < 8 or end_h > 18:
-                    continue
-
-                block = ctk.CTkFrame(container, fg_color=color, corner_radius=10)
+                block = ctk.CTkFrame(container, fg_color=color, corner_radius=8)
                 block.grid(
-                    row=day_row,
-                    column=col_start,
-                    columnspan=duration,
+                    row=days.index(day) + 1,
+                    column=(start_h - 8) + 1,
+                    columnspan=(end_h - start_h),
                     sticky="nsew",
-                    padx=3,
-                    pady=6,
+                    padx=2,
+                    pady=5,
                 )
-
-                text = f"{course['code']}\n{course['name'][:20]}{'...' if len(course['name']) > 20 else ''}\n{course['location']}"
                 ctk.CTkLabel(
                     block,
-                    text=text,
-                    font=("Roboto", 11, "bold"),
+                    text=f"{course['code']}\n{course['location']}",
+                    font=("Roboto", 10, "bold"),
                     text_color="white",
-                    justify="center",
-                    wraplength=110,
                 ).place(relx=0.5, rely=0.5, anchor="center")
 
 
