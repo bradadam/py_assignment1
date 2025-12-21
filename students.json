@@ -1,100 +1,5 @@
 [
     {
-        "name": "Idris",
-        "matric": "A25AI6969",
-        "registered_courses": [
-            {
-                "code": "SAIA1113",
-                "name": "PYTHON PROGRAMMING",
-                "credit": 3,
-                "slots": [
-                    [
-                        "Monday",
-                        "08:00-10:00"
-                    ],
-                    [
-                        "Friday",
-                        "08:00-09:00"
-                    ]
-                ],
-                "location": "Lecture Room 1, Lvl 15"
-            },
-            {
-                "code": "SAIA1153",
-                "name": "MATHEMATICS FOR ML",
-                "credit": 3,
-                "slots": [
-                    [
-                        "Monday",
-                        "12:00-13:00"
-                    ],
-                    [
-                        "Thursday",
-                        "14:00-16:00"
-                    ]
-                ],
-                "location": "Lecture Room 2, Lvl 15"
-            },
-            {
-                "code": "SAIA1123",
-                "name": "INTRODUCTION TO AI",
-                "credit": 3,
-                "slots": [
-                    [
-                        "Wednesday",
-                        "08:00-10:00"
-                    ],
-                    [
-                        "Thursday",
-                        "10:00-11:00"
-                    ]
-                ],
-                "location": "Lecture Room 1, Lvl 15"
-            },
-            {
-                "code": "SAIA1013",
-                "name": "RESPONSIBLE AI AND ETHICS",
-                "credit": 3,
-                "slots": [
-                    [
-                        "Wednesday",
-                        "14:00-16:00"
-                    ]
-                ],
-                "location": "Seminar Room 3, BATC"
-            },
-            {
-                "code": "SAIA1143",
-                "name": "DISCRETE MATHEMATICS",
-                "credit": 3,
-                "slots": [
-                    [
-                        "Tuesday",
-                        "08:00-10:00"
-                    ],
-                    [
-                        "Friday",
-                        "10:00-11:00"
-                    ]
-                ],
-                "location": "Lecture Room 1, Lvl 15"
-            },
-            {
-                "code": "ULRS1032",
-                "name": "INTEGRITY AND ANTI-CORRUPTION",
-                "credit": 2,
-                "slots": [
-                    [
-                        "Tuesday",
-                        "11:00-13:00"
-                    ]
-                ],
-                "location": "Lecture Room 1, Lvl 15"
-            }
-        ],
-        "total_credits": 17
-    },
-    {
         "name": "Bradley Brandon",
         "matric": "A25AI9090",
         "registered_courses": [
@@ -164,5 +69,100 @@
             }
         ],
         "total_credits": 12
+    },
+    {
+        "name": "Test Testing",
+        "matric": "A25AI3333",
+        "registered_courses": [
+            {
+                "code": "SAIA1113",
+                "name": "PYTHON PROGRAMMING",
+                "credit": 3,
+                "slots": [
+                    [
+                        "Monday",
+                        "08:00-10:00"
+                    ],
+                    [
+                        "Friday",
+                        "08:00-09:00"
+                    ]
+                ],
+                "location": "Lecture Room 1, Lvl 15"
+            },
+            {
+                "code": "ULRS1032",
+                "name": "INTEGRITY AND ANTI-CORRUPTION",
+                "credit": 2,
+                "slots": [
+                    [
+                        "Tuesday",
+                        "11:00-13:00"
+                    ]
+                ],
+                "location": "Lecture Room 1, Lvl 15"
+            },
+            {
+                "code": "SAIA1143",
+                "name": "DISCRETE MATHEMATICS",
+                "credit": 3,
+                "slots": [
+                    [
+                        "Tuesday",
+                        "08:00-10:00"
+                    ],
+                    [
+                        "Friday",
+                        "10:00-11:00"
+                    ]
+                ],
+                "location": "Lecture Room 1, Lvl 15"
+            },
+            {
+                "code": "SAIA1123",
+                "name": "INTRODUCTION TO AI",
+                "credit": 3,
+                "slots": [
+                    [
+                        "Wednesday",
+                        "08:00-10:00"
+                    ],
+                    [
+                        "Thursday",
+                        "10:00-11:00"
+                    ]
+                ],
+                "location": "Lecture Room 1, Lvl 15"
+            },
+            {
+                "code": "SAIA1153",
+                "name": "MATHEMATICS FOR ML",
+                "credit": 3,
+                "slots": [
+                    [
+                        "Monday",
+                        "12:00-13:00"
+                    ],
+                    [
+                        "Thursday",
+                        "14:00-16:00"
+                    ]
+                ],
+                "location": "Lecture Room 2, Lvl 15"
+            },
+            {
+                "code": "SAIA1013",
+                "name": "RESPONSIBLE AI AND ETHICS",
+                "credit": 3,
+                "slots": [
+                    [
+                        "Wednesday",
+                        "14:00-16:00"
+                    ]
+                ],
+                "location": "Seminar Room 3, BATC"
+            }
+        ],
+        "total_credits": 17
     }
 ]
