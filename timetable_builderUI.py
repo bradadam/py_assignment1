@@ -5,10 +5,10 @@ import re
 from PIL import Image, ImageDraw
 
 # ==========================================
-# CONFIGURATION & THEME - Light and Friendly!
+# CONFIGURATION & THEME
 # ==========================================
-ctk.set_appearance_mode("Light")  # Bright, clean background
-ctk.set_default_color_theme("green")  # Soft, friendly green accents
+ctk.set_appearance_mode("Light")
+ctk.set_default_color_theme("green")
 
 APP_NAME = "UTM AI: Student Scheduler"
 MAX_CREDITS = 21
