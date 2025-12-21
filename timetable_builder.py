@@ -1,6 +1,6 @@
 from tabulate import tabulate
 import json
-import re
+import re # regex module for name validation
 
 # ==========================================
 # DATA (Global)
@@ -23,7 +23,7 @@ def validate_name(name):
     if any(char.isdigit() for char in name):
         print("Error: Name cannot contain numbers.")
         return False
-    if not re.match(r"^[a-zA-Z\s\-\']+$", name):
+    if not re.match(r"^[a-zA-Z\s\-\']+$", name): # checks if pattern matches from the start of string
         print(
             "Error: Name contains invalid characters. Only letters, spaces, hyphens, and apostrophes allowed."
         )
