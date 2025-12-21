@@ -14,7 +14,6 @@ APP_NAME = "UTM AI: Student Scheduler"
 MAX_CREDITS = 21
 MIN_CREDITS = 12
 
-# Soft pastel colors for course blocks – perfect for light mode
 COURSE_COLORS = [
     "#A7C7E7",  # Soft Sky Blue
     "#B5EAD7",  # Mint Green
