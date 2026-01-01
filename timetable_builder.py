@@ -150,25 +150,38 @@ def require_login():
 
 def find_course_by_partial_code(partial_code):
     partial_code = partial_code.strip().upper()
+    matches = []
 
-    # Exact match first
     for course in courses_available:
-        if course["code"] == partial_code:
+        code = course["code"]
+        name = course["name"].upper()
+
+        # Exact code match = immediate return (highest priority)
+        if code == partial_code:
             return course
 
-    # SAIA + 4 digits
-    if len(partial_code) == 4 and partial_code.isdigit():
-        full_code = "SAIA" + partial_code
-        for course in courses_available:
-            if course["code"] == full_code:
-                return course
-
-    # Partial match in code
-    for course in courses_available:
-        if partial_code in course["code"]:
+        # SAIA 4-digit shortcut
+        if (
+            len(partial_code) == 4
+            and partial_code.isdigit()
+            and code == "SAIA" + partial_code
+        ):
             return course
 
-    return None
+        # Partial match in code OR course name
+        if partial_code in code or partial_code in name:
+            matches.append(course)
+
+    if len(matches) == 0:
+        return None
+    elif len(matches) == 1:
+        return matches[0]
+    else:
+        # multiple matches, show them and ask user to choose or confirm
+        print("\nMultiple courses found matching your input:")
+        print(tabulate(matches, headers="keys", tablefmt="fancy_grid"))
+        print("\nPlease enter the exact course code from the list above.")
+        return None  # force user to re-enter a more specific or full code
 
 
 def detect_clash(new_course):
