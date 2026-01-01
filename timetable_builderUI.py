@@ -118,7 +118,7 @@ class GROUP2App(ctk.CTk):
         except Exception:
             img = Image.new(
                 "RGB", (180, 60), color=(200, 240, 220)
-            )  # Very soft mint background
+            )
             d = ImageDraw.Draw(img)
             d.text((25, 15), "UTM AI", fill="#2E8B57", font_size=28)  # Sea green text
             return ctk.CTkImage(light_image=img, dark_image=img, size=(180, 60))
@@ -139,7 +139,7 @@ class GROUP2App(ctk.CTk):
     def show_toast(self, message, is_error=False):
         if self.notification_label:
             self.notification_label.destroy()
-        color = "#e74c3c" if is_error else "#27ae60"  # Red for error, green for success
+        color = "#e74c3c" if is_error else "#27ae60"  # red for error, green for success
         self.notification_label = ctk.CTkLabel(
             self,
             text=message,
