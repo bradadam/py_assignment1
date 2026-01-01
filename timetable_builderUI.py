@@ -4,9 +4,7 @@ import os
 import re
 from PIL import Image, ImageDraw
 
-# ==========================================
 # CONFIGURATION & THEME
-# ==========================================
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("green")
 
@@ -26,9 +24,7 @@ COURSE_COLORS = [
 ]
 
 
-# ==========================================
 # DATA HANDLING
-# ==========================================
 def create_initial_data():
     if not os.path.exists("courses.json"):
         courses = [
@@ -96,9 +92,7 @@ def create_initial_data():
             json.dump([], f, indent=4)
 
 
-# ==========================================
 # MAIN APP CLASS
-# ==========================================
 class GROUP2App(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -169,9 +163,7 @@ class GROUP2App(ctk.CTk):
             if widget != self.notification_label:
                 widget.destroy()
 
-    # ==========================================
     # VALIDATION FUNCTIONS
-    # ==========================================
     def validate_name(self, name):
         name = name.strip()
         if len(name) < 4:
@@ -209,9 +201,7 @@ class GROUP2App(ctk.CTk):
             return False
         return matric
 
-    # ==========================================
     # SCREENS
-    # ==========================================
     def show_login_screen(self):
         self.clear_screen()
         frame = ctk.CTkFrame(self, corner_radius=15)
@@ -265,7 +255,7 @@ class GROUP2App(ctk.CTk):
             sidebar,
             text=f"Credits: {self.current_student['total_credits']}/{MAX_CREDITS}",
             font=("Roboto", 18, "bold"),
-            text_color="#2E8B57",  # Friendly sea green
+            text_color="#2E8B57",
         )
         self.credit_label.pack(pady=20)
 
@@ -297,9 +287,7 @@ class GROUP2App(ctk.CTk):
         self.setup_course_tab(main_view.tab("Course Selection"))
         self.setup_timetable_tab(main_view.tab("My Timetable"))
 
-    # ==========================================
     # LOGIC
-    # ==========================================
     def handle_login(self):
         matric = self.entry_login_matric.get().strip().upper()
         student = next((s for s in self.students if s["matric"] == matric), None)
@@ -417,9 +405,7 @@ class GROUP2App(ctk.CTk):
                 w.destroy()
             self.draw_timetable_grid(self.timetable_container)
 
-    # ==========================================
     # UI GENERATION
-    # ==========================================
     def setup_course_tab(self, parent):
         parent.grid_columnconfigure((0, 1), weight=1)
         parent.grid_rowconfigure(0, weight=1)
@@ -461,9 +447,7 @@ class GROUP2App(ctk.CTk):
             self.create_course_card(self.scroll_reg, c, True)
 
     def create_course_card(self, parent, course, is_registered):
-        card = ctk.CTkFrame(
-            parent, corner_radius=10, fg_color="#f8f9fa"
-        )  # Very light gray for cards
+        card = ctk.CTkFrame(parent, corner_radius=10, fg_color="#f8f9fa")
         card.pack(fill="x", pady=5, padx=5)
         info = ctk.CTkFrame(card, fg_color="transparent")
         info.pack(side="left", padx=10, pady=10, fill="both", expand=True)
@@ -493,22 +477,37 @@ class GROUP2App(ctk.CTk):
 
     def draw_timetable_grid(self, container):
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-        hours = list(range(8, 18))
+        hours = list(range(8, 18))  # 8:00 to 17:00 (10 columns)
 
+        # Configure container grid: equal weight for day rows
+        container.grid_columnconfigure(
+            tuple(range(1, len(hours) + 1)), weight=1, uniform="hour"
+        )
+        for r in range(1, len(days) + 1):  # rows for days
+            container.grid_rowconfigure(r, weight=1, uniform="day")
+
+        # Time headers (top row)
+        ctk.CTkLabel(container, text="", width=100).grid(
+            row=0, column=0
+        )  # empty corner
         for i, h in enumerate(hours):
             ctk.CTkLabel(
                 container, text=f"{h:02d}:00", font=("Roboto", 11, "bold")
-            ).grid(row=0, column=i + 1, padx=5)
+            ).grid(row=0, column=i + 1, padx=5, sticky="ew")
 
+        # Build grid: day labels + cells
         for r, day in enumerate(days, start=1):
             ctk.CTkLabel(container, text=day, font=("Roboto", 12, "bold")).grid(
-                row=r, column=0, padx=10, pady=20
+                row=r, column=0, padx=10, pady=20, sticky="w"
             )
             for c in range(len(hours)):
-                ctk.CTkFrame(container, fg_color="#f0f0f0", width=100, height=60).grid(
-                    row=r, column=c + 1, padx=1, pady=1
+                # empty cell: no fixed height, will match row height
+                empty_cell = ctk.CTkFrame(
+                    container, fg_color="#f0f0f0", corner_radius=6
                 )
+                empty_cell.grid(row=r, column=c + 1, padx=1, pady=1, sticky="nsew")
 
+        # Place registered courses on top
         for idx, course in enumerate(self.current_student["registered_courses"]):
             color = COURSE_COLORS[idx % len(COURSE_COLORS)]
             for slot in course["slots"]:
@@ -517,20 +516,25 @@ class GROUP2App(ctk.CTk):
                     continue
                 start_h = int(time_range.split("-")[0].split(":")[0])
                 end_h = int(time_range.split("-")[1].split(":")[0])
-                block = ctk.CTkFrame(container, fg_color=color, corner_radius=8)
+                duration_hours = end_h - start_h
+
+                block = ctk.CTkFrame(container, fg_color=color, corner_radius=10)
                 block.grid(
                     row=days.index(day) + 1,
                     column=(start_h - 8) + 1,
-                    columnspan=(end_h - start_h),
+                    columnspan=duration_hours,
                     sticky="nsew",
-                    padx=2,
-                    pady=5,
+                    padx=4,
+                    pady=8,
                 )
+
+                # Course info label
                 ctk.CTkLabel(
                     block,
                     text=f"{course['code']}\n{course['location']}",
                     font=("Roboto", 10, "bold"),
                     text_color="#333333",
+                    justify="center",
                 ).place(relx=0.5, rely=0.5, anchor="center")
 
 
