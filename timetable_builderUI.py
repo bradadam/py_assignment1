@@ -25,8 +25,12 @@ COURSE_COLORS = [
 
 
 # DATA HANDLING
+# setup step to ensure apps has necessary files to run correctly the first time it is launched
+# to prevents "file not found" errors
+# our app relies on two files: courses.json and students.json
+# if user runs app for first time, these files might not exist yet
 def create_initial_data():
-    if not os.path.exists("courses.json"):
+    if not os.path.exists("courses.json"): # creates a default lsit of courses, its needed so that apps would not open empty list courses
         courses = [
             {
                 "code": "SAIA1113",
@@ -87,7 +91,7 @@ def create_initial_data():
         ]
         with open("courses.json", "w") as f:
             json.dump(courses, f, indent=4)
-    if not os.path.exists("students.json"):
+    if not os.path.exists("students.json"): # creates an empty list of students, (why needed) = app expects students.json to contain a list so it can .append() new students to it.
         with open("students.json", "w") as f:
             json.dump([], f, indent=4)
 
@@ -165,7 +169,7 @@ class GROUP2App(ctk.CTk):
 
     # VALIDATION FUNCTIONS
     def validate_name(self, name):
-        name = name.strip()
+        name = name.strip() # input sanitization, because user might put space before their name
         if len(name) < 4:
             self.show_toast("Name too short (minimum 4 characters).", is_error=True)
             return False
@@ -177,7 +181,7 @@ class GROUP2App(ctk.CTk):
         if any(char.isdigit() for char in name):
             self.show_toast("Name cannot contain numbers.", is_error=True)
             return False
-        if not re.match(r"^[a-zA-Z\s\-\']+$", name):
+        if not re.match(r"^[a-zA-Z\s\-\']+$", name): # line checks if name variable contains only allowed chars
             self.show_toast(
                 "Invalid characters in name. Only letters, spaces, hyphens, and apostrophes allowed.",
                 is_error=True,
@@ -196,7 +200,8 @@ class GROUP2App(ctk.CTk):
         if not matric[5:].isdigit():
             self.show_toast("Last 4 digits must be numeric.", is_error=True)
             return False
-        if any(s["matric"] == matric for s in self.students):
+        if any(s["matric"] == matric for s in self.students): # loops through every student currently saved in list, 
+            # s["matric"] == matric: compares saved student matric with new one that student tries to register
             self.show_toast("This matric number is already registered.", is_error=True)
             return False
         return matric
